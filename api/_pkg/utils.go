@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"io"
 	"net/http"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func MakeRequest(cne string) *http.Request {
@@ -31,4 +34,35 @@ func MakeRequest(cne string) *http.Request {
 	req.Header.Set("Sec-Ch-Ua-Platform", "\"Windows\"")
 
 	return req
+}
+
+func ParseBody(body io.Reader) (int, map[string]interface{}) {
+	doc, _ := goquery.NewDocumentFromReader(body) // Pass the request body to start parsing
+
+	// Search for something with this id
+	CNE := doc.Find("#MainContent_lblcodecandMassar").Text()
+	// If is empty that mean our CNE is not Valid
+	if CNE == "" {
+		return 404, map[string]interface{}{"error": "Invalid CNE Format"}
+	}
+
+	// If you reach there that mean CNE is valid and you can complete parsing
+	CIN, _ := doc.Find("#MainContent_txtCIN").Attr("value")
+	ARLastName, _ := doc.Find("#MainContent_TxtNomCandAr").Attr("value")
+	FRLastName, _ := doc.Find("#MainContent_TxtNomCandLa").Attr("value")
+	ARFirstName, _ := doc.Find("#MainContent_TxtPrenomCandAr").Attr("value")
+	FRFirstName, _ := doc.Find("#MainContent_TxtPrenomCandLa").Attr("value")
+	BirthDate := doc.Find(`#Td19 > div > table > tbody > tr > td:nth-child(1)`).Text()
+	BirthDate = strings.ReplaceAll(BirthDate, " ", "")
+	BirthDate = strings.TrimSpace(strings.Join(strings.Fields(BirthDate), "\n"))
+
+	return 200, map[string]interface{}{
+		"cin":           CIN,
+		"cne":           CNE,
+		"last_name_ar":  ARLastName,
+		"last_name_fr":  FRLastName,
+		"first_name_Ar": ARFirstName,
+		"first_name_fr": FRFirstName,
+		"birth_date":    BirthDate,
+	}
 }

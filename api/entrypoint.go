@@ -1,7 +1,6 @@
 package api
 
 import (
-	"io/ioutil"
 	"net/http"
 	"regexp"
 	"time"
@@ -10,21 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Data that we try to grab
-type Data struct {
-	CIN         string `json:"cin"`
-	CNE         string `json:"cne"`
-	ARLastName  string `json:"last_name_ar"`
-	FRLastName  string `json:"last_name_fr"`
-	ARFirstName string `json:"first_name_ar"`
-	FRFirstName string `json:"first_name_fr"`
-	BirthDate   string `json:"birth_date"`
-}
-
 var (
 	app    *gin.Engine
 	re     = regexp.MustCompile(`(?i)[A-Za-z]\d\d\d\d\d\d\d\d\d`) // Make it global so we don't recompile every time
-	client = &http.Client{                                        // we use the same client again and again
+	client = &http.Client{                                        // We can use the same client again and again
 		Timeout: 3 * time.Second,
 	}
 )
@@ -55,14 +43,9 @@ func myRoute(r *gin.RouterGroup) {
 		}
 		defer resp.Body.Close()
 
-		bytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Cannot turn body to bytes"})
-			return
-		}
-
-		// convert the byte slice to a string
-		c.String(http.StatusOK, string(bytes))
+		// We can parse our resp.body now
+		status, data := utils.ParseBody(resp.Body)
+		c.JSON(status, data)
 	})
 
 }

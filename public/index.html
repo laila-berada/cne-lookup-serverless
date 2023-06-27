@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="main.css" rel="stylesheet">
+    <title>CNE-Lookup</title>
+</head>
+
+<body>
+    <div class="hero min-h-screen bg-base-200">
+        <div class="hero-content text-center">
+            <div class="max-w-md">
+                <h1 class="text-5xl font-bold mb-6">CNE lookup</h1>
+                    <form class="flex flex-row mb-6 space-x-2 items-center">
+                        <label for="CNEInput"></label>
+                        <input
+                          type="text"
+                          id="CNEInput"
+                          name="CNEInput"
+                          placeholder="Enter CNE"
+                          class="input input-bordered input-success w-full max-w-xs"
+                          required
+                        />
+                        <button type="submit" class="btn btn-outline btn-success">Search</button>
+                      </form>
+                <!-- card -->
+                <div class="card card-compact w-96 bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h2 class="card-title">Data:</h2>
+                        <div>
+                            <span>CIN:</span>
+                            <span id="cin"></span>
+                        </div>
+                        <div>
+                            <span>CNE:</span>
+                            <span id="cne"></span>
+                        </div>
+                        <div>
+                            <span>ARLastName:</span>
+                            <span id="last_name_ar"></span>
+                        </div>
+                        <div>
+                            <span>FRLastName:</span>
+                            <span id="last_name_fr"></span>
+                        </div>
+                        <div>
+                            <span>ARFirstName:</span>
+                            <span id="first_name_ar"></span>
+                        </div>
+                        <div>
+                            <span>FRFirstName:</span>
+                            <span id="first_name_fr"></span>
+                        </div>
+                        <div>
+                            <span>BirthDate:</span>
+                            <span id="birth_date"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- card -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const form = document.querySelector("form");
+    const CNEInput = document.querySelector("#CNEInput");
+  
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const response = await fetch(
+        `https://cne-lookup-serverless-laila-berada.vercel.app/api/v1?CNE=${CNEInput.value}`
+      );
+      const data = await response.json();
+      const err = data.error;
+      if (data.hasOwnProperty("error")) {
+        alert(err);
+        return;
+      }
+  
+      const birthDate = data.birth_date;
+      const cin = data.cin;
+      const cne = data.cne;
+      const firstNameAr = data.first_name_ar;
+      const firstNameFr = data.first_name_fr;
+      const lastNameAr = data.last_name_ar;
+      const lastNameFr = data.last_name_fr;
+
+      const myCin = document.querySelector("#cin");
+      myCin.textContent = cin;
+      const myCne = document.querySelector("#cne");
+      myCne.textContent = cne;
+      const myLastNameAR = document.querySelector("#last_name_ar");
+      myLastNameAR.textContent = lastNameAr;
+      const myLastNameFR = document.querySelector("#last_name_fr");
+      myLastNameFR.textContent = lastNameFr;
+      const myFistNameAR = document.querySelector("#first_name_ar");
+      myFistNameAR.textContent = firstNameAr;
+      const myFistNameFR = document.querySelector("#first_name_fr");
+      myFistNameFR.textContent = firstNameFr;
+      const myBirthDate = document.querySelector("#birth_date");
+      myBirthDate.textContent = birthDate;
+    });
+  </script>

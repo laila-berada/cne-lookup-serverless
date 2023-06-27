@@ -22,20 +22,21 @@ type Data struct {
 }
 
 var (
-	app *gin.Engine
+	app    *gin.Engine
+	re     = regexp.MustCompile(`(?i)[A-Za-z]\d\d\d\d\d\d\d\d\d`) // Make it global so we don't recompile every time
+	client = &http.Client{                                        // we use the same client again and again
+		Timeout: 3 * time.Second,
+	}
 )
 
 // CREATE ENDPOIND
 
 func myRoute(r *gin.RouterGroup) {
 	r.GET("/v1", func(c *gin.Context) {
-		// Initialise regex
-		re := regexp.MustCompile(`(?i)[A-Za-z]\d\d\d\d\d\d\d\d\d`)
-
 		//Get CNE
 		cne := c.Query("CNE")
 
-		// Validate this CNE
+		// Validate CNE format
 		isValid := re.MatchString(cne)
 		// Non valid CNE then return Json error
 		if !isValid {
@@ -46,11 +47,7 @@ func myRoute(r *gin.RouterGroup) {
 		// Is a Valid CNE, then make a request
 		req := utils.MakeRequest(cne)
 
-		// make a client with short timeout because in serverless time cost money
-		client := &http.Client{
-			Timeout: 5 * time.Second,
-		}
-
+		// Send the request using the global client
 		resp, err := client.Do(req)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Cannot get Data please try later"})

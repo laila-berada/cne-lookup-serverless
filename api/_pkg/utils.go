@@ -61,7 +61,7 @@ func ParseBody(body io.Reader) (int, map[string]interface{}) {
 		"cne":           CNE,
 		"last_name_ar":  ARLastName,
 		"last_name_fr":  FRLastName,
-		"first_name_Ar": ARFirstName,
+		"first_name_ar": ARFirstName,
 		"first_name_fr": FRFirstName,
 		"birth_date":    BirthDate,
 	}

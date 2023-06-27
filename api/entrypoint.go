@@ -13,7 +13,7 @@ var (
 	app    *gin.Engine
 	re     = regexp.MustCompile(`(?i)[A-Za-z]\d\d\d\d\d\d\d\d\d`) // Make it global so we don't recompile every time
 	client = &http.Client{                                        // We can use the same client again and again
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 )
 
@@ -21,6 +21,8 @@ var (
 
 func myRoute(r *gin.RouterGroup) {
 	r.GET("/v1", func(c *gin.Context) {
+		// Allow fetch api
+		c.Header("Access-Control-Allow-Origin", "*")
 		//Get CNE
 		cne := c.Query("CNE")
 
